@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.SortedMap;
 
 import static lox.TokenType.*;
 
@@ -94,17 +94,63 @@ class Scanner {
             case '\n':
                 line++;
                 break;
+            case '"':
+                string();
+                break;
 
             default:
-                Lox.error(line, "Unexpected character.");
+                if (isDigit(c)) {
+                    number();
+                }else {
+                    Lox.error(line, "Unexpected character");
+                }
                 break;
         }
     }
 
-    private char peek() {
-        if (isAtEnd()) return '\0';
-        return source.charAt(current);
+    private void number() {
+        while(isDigit(peek())) advance();
+
+        if (peek() == '.' && isDigit(peekNext())) {
+            //consume the "."
+            advance();
+
+            while(isDigit(peek())) advance();
+            
+        }
+
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
+
+    private char peekNext() {
+        if (current + 1 >= source.length()) return '\0';
+        return source.charAt(current + 1);
+    }
+
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+
+    private void string() {
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') line++;
+            advance();
+        }
+
+        if (isAtEnd()) {
+            Lox.error(line, "Unterminated stirng");
+            return;
+        }
+
+        advance();
+
+        // Trimming the surrounding quotes
+
+        String value = source.substring(start + 1, current - 1);
+        addToken(STRING, value);  
+    }
+
 
     private boolean match(char expected) {
         if (isAtEnd()) return false;
@@ -114,10 +160,17 @@ class Scanner {
         return true;
     }
 
+
+    private char peek() {
+        if (isAtEnd()) return '\0';
+        return source.charAt(current);
+    }
+
     private char advance() {
         current++;
         return source.charAt(current -1);
     }
+
 
     private void addToken(TokenType type) {
         addToken(type, null);
