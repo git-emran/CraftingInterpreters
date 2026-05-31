@@ -97,15 +97,46 @@ class Scanner {
             case '"':
                 string();
                 break;
+            case 'o':
+                if (peek() == 'r') {
+                    addToken(OR);
+                }
+                break;
 
             default:
                 if (isDigit(c)) {
                     number();
+                
+                }else if (isAlpha(c)){
+                    identifier();
                 }else {
                     Lox.error(line, "Unexpected character");
+
                 }
                 break;
         }
+    }
+
+    private static final Map<String, TokenType> keywords;
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+    }
+
+    private void identifier (){
+        while (isAlphaNumeric(peek())) advance();
+        addToken(IDENTIFIER);
+    }
+
+    private boolean isAlpha(char c ) {
+        return (c >= 'a' && c <= 'z') ||
+            (c >= 'A' && c <= 'Z') ||
+            c == '_';
+    }
+
+    private boolean isAlphaNumeric(char c ) {
+        return isAlpha(c) || isDigit(c);
     }
 
     private void number() {
