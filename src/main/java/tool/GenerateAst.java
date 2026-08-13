@@ -1,6 +1,7 @@
 package tool;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +25,20 @@ public class GenerateAst {
     public static void defineAst(String outputDir, String baseName, List<String> types ) throws IOException {
 
         String path = outputDir + "/" + baseName + ".java";
+        PrintWriter writer = new PrintWriter(path, "UTF-8");
+        writer.println("interpreter");
+        writer.println();
+        writer.println("import java.util.List;");
 
+        writer.println("abstract class" + baseName + " {");
+
+        writer.println("}");
+        writer.close();
+
+    }
+
+    public static void defineType(PrintWriter writer, String baseName, String className, String fieldList){
+        writer.println(" static class " + className + " extends " + baseName + " {");
     }
 }
 
